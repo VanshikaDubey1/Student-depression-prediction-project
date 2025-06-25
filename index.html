@@ -83,15 +83,18 @@ body::before {
 
         .form-group input,
         .form-group select {
-            width: 100%;
+    width: 100%;
     padding: 12px 15px;
-    border: 2px solid rgba(255, 255, 255, 0.2);
+    background-color: #222;
+    color: #ffffff;
+    border: 2px solid rgba(255, 255, 255, 0.3);
     border-radius: 10px;
     font-size: 16px;
-    background: rgba(255, 255, 255, 0.05); /* translucent background */
-    color: #ffffff; /* text color */
-    caret-color: #ffffff;
-        }
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
 
         .form-group input:focus,
         .form-group select:focus {
@@ -229,6 +232,12 @@ body::before {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        select option {
+    background-color: #222;
+    color: #fff;
+}
+
     </style>
 </head>
 <body>
