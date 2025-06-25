@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Depression Predictor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+
+        .form-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e6ed;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .range-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .range-group input[type="range"] {
+            flex: 1;
+            height: 8px;
+            border-radius: 5px;
+            background: #e0e6ed;
+            outline: none;
+            appearance: none;
+        }
+
+        .range-group input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+        }
+
+        .range-value {
+            min-width: 30px;
+            text-align: center;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .predict-btn {
+            width: 100%;
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .predict-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .predict-btn:active {
+            transform: translateY(0);
+        }
+
+        .result-container {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .result-container.high-risk {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            color: white;
+        }
+
+        .result-container.low-risk {
+            background: linear-gradient(135deg, #51cf66, #40c057);
+            color: white;
+        }
+
+        .result-container h3 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        .result-container p {
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .disclaimer {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .disclaimer h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .disclaimer p {
+            color: #6c757d;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 Student Depression Predictor</h1>
+            <p>AI-powered mental health assessment tool for students</p>
+        </div>
+
+        <form id="predictionForm">
+            <div class="form-container">
+                <div class="form-group">
+                    <label for="gender">Gender:</label>
+                    <select id="gender" name="gender" required>
+                        <option value="">Select Gender</option>
+                        <option value="0">Female</option>
+                        <option value="1">Male</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="age">Age:</label>
+                    <input type="number" id="age" name="age" min="18" max="50" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="city">City:</label>
+                    <select id="city" name="city" required>
+                        <option value="">Select City</option>
+                        <option value="0">Bangalore</option>
+                        <option value="1">Chennai</option>
+                        <option value="2">Delhi</option>
+                        <option value="3">Hyderabad</option>
+                        <option value="4">Kolkata</option>
+                        <option value="5">Mumbai</option>
+                        <option value="6">Pune</option>
+                        <option value="7">Srinagar</option>
+                        <option value="8">Visakhapatnam</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="profession">Profession:</label>
+                    <select id="profession" name="profession" required>
+                        <option value="">Select Profession</option>
+                        <option value="0">Student</option>
+                        <option value="1">Working Professional</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Academic Pressure (1-5):</label>
+                    <div class="range-group">
+                        <input type="range" id="academicPressure" name="academicPressure" min="1" max="5" value="3">
+                        <span class="range-value" id="academicPressureValue">3</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Work Pressure (0-5):</label>
+                    <div class="range-group">
+                        <input type="range" id="workPressure" name="workPressure" min="0" max="5" value="2">
+                        <span class="range-value" id="workPressureValue">2</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="cgpa">CGPA:</label>
+                    <input type="number" id="cgpa" name="cgpa" min="0" max="10" step="0.01" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Study Satisfaction (1-5):</label>
+                    <div class="range-group">
+                        <input type="range" id="studySatisfaction" name="studySatisfaction" min="1" max="5" value="3">
+                        <span class="range-value" id="studySatisfactionValue">3</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Job Satisfaction (0-5):</label>
+                    <div class="range-group">
+                        <input type="range" id="jobSatisfaction" name="jobSatisfaction" min="0" max="5" value="3">
+                        <span class="range-value" id="jobSatisfactionValue">3</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="sleepDuration">Sleep Duration:</label>
+                    <select id="sleepDuration" name="sleepDuration" required>
+                        <option value="">Select Sleep Duration</option>
+                        <option value="0">'5-6 hours'</option>
+                        <option value="1">'7-8 hours'</option>
+                        <option value="2">'Less than 5 hours'</option>
+                        <option value="3">'More than 8 hours'</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="dietaryHabits">Dietary Habits:</label>
+                    <select id="dietaryHabits" name="dietaryHabits" required>
+                        <option value="">Select Dietary Habits</option>
+                        <option value="0">Healthy</option>
+                        <option value="1">Moderate</option>
+                        <option value="2">Unhealthy</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="degree">Degree:</label>
+                    <select id="degree" name="degree" required>
+                        <option value="">Select Degree</option>
+                        <option value="0">B.Com</option>
+                        <option value="1">B.Pharm</option>
+                        <option value="2">B.Tech</option>
+                        <option value="3">BA</option>
+                        <option value="4">BBA</option>
+                        <option value="5">BCA</option>
+                        <option value="6">BSc</option>
+                        <option value="7">M.Tech</option>
+                        <option value="8">MBA</option>
+                        <option value="9">MCA</option>
+                        <option value="10">MSc</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="suicidalThoughts">Have you ever had suicidal thoughts?:</label>
+                    <select id="suicidalThoughts" name="suicidalThoughts" required>
+                        <option value="">Select Option</option>
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="workStudyHours">Work/Study Hours per day:</label>
+                    <input type="number" id="workStudyHours" name="workStudyHours" min="1" max="16" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="financialStress">Financial Stress:</label>
+                    <select id="financialStress" name="financialStress" required>
+                        <option value="">Select Financial Stress Level</option>
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="familyHistory">Family History of Mental Illness:</label>
+                    <select id="familyHistory" name="familyHistory" required>
+                        <option value="">Select Option</option>
+                        <option value="0">No</option>
+                        <option value="1">Yes</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="submit" class="predict-btn">Predict Depression Risk</button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Analyzing your data...</p>
+        </div>
+
+        <div class="result-container" id="resultContainer">
+            <h3 id="resultTitle"></h3>
+            <p id="resultMessage"></p>
+        </div>
+
+        <div class="disclaimer">
+            <h4>⚠️ Important Disclaimer</h4>
+            <p>This tool is for educational purposes only and should not be considered as a substitute for professional medical advice, diagnosis, or treatment. If you're experiencing mental health concerns, please consult with a qualified healthcare professional or mental health provider.</p>
+        </div>
+    </div>
+
+    <script>
+        // Update range values
+        const ranges = ['academicPressure', 'workPressure', 'studySatisfaction', 'jobSatisfaction'];
+        ranges.forEach(range => {
+            const slider = document.getElementById(range);
+            const value = document.getElementById(range + 'Value');
+            slider.addEventListener('input', function() {
+                value.textContent = this.value;
+            });
+        });
+
+        // Simple prediction logic (replace with actual model integration)
+        function predictDepression(formData) {
+            // This is a simplified prediction logic
+            // In a real application, you would send this data to your trained model
+            
+            let riskScore = 0;
+            
+            // Academic pressure factor
+            if (formData.academicPressure >= 4) riskScore += 2;
+            else if (formData.academicPressure >= 3) riskScore += 1;
+            
+            // Work pressure factor
+            if (formData.workPressure >= 4) riskScore += 2;
+            else if (formData.workPressure >= 3) riskScore += 1;
+            
+            // Sleep duration factor
+            if (formData.sleepDuration == 2) riskScore += 3; // Less than 5 hours
+            else if (formData.sleepDuration == 0) riskScore += 1; // 5-6 hours
+            
+            // CGPA factor (lower CGPA might indicate stress)
+            if (formData.cgpa < 6) riskScore += 2;
+            else if (formData.cgpa < 7) riskScore += 1;
+            
+            // Study satisfaction (lower satisfaction = higher risk)
+            if (formData.studySatisfaction <= 2) riskScore += 2;
+            else if (formData.studySatisfaction <= 3) riskScore += 1;
+            
+            // Suicidal thoughts (major risk factor)
+            if (formData.suicidalThoughts == 1) riskScore += 4;
+            
+            // Work/Study hours
+            if (formData.workStudyHours >= 12) riskScore += 2;
+            else if (formData.workStudyHours >= 9) riskScore += 1;
+            
+            // Financial stress
+            if (formData.financialStress >= 4) riskScore += 2;
+            else if (formData.financialStress >= 3) riskScore += 1;
+            
+            // Family history
+            if (formData.familyHistory == 1) riskScore += 2;
+            
+            // Dietary habits
+            if (formData.dietaryHabits == 2) riskScore += 1; // Unhealthy
+            
+            return riskScore >= 6 ? 1 : 0; // 1 = high risk, 0 = low risk
+        }
+
+        // Form submission
+        document.getElementById('predictionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = {};
+            
+            // Convert form data to object
+            for (let [key, value] of formData.entries()) {
+                if (['age', 'cgpa', 'workStudyHours'].includes(key)) {
+                    data[key] = parseFloat(value);
+                } else {
+                    data[key] = parseInt(value);
+                }
+            }
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('resultContainer').style.display = 'none';
+            
+            // Simulate API call delay
+            setTimeout(() => {
+                const prediction = predictDepression(data);
+                displayResult(prediction);
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('resultContainer').style.display = 'block';
+            }, 2000);
+        });
+
+        function displayResult(prediction) {
+            const resultContainer = document.getElementById('resultContainer');
+            const resultTitle = document.getElementById('resultTitle');
+            const resultMessage = document.getElementById('resultMessage');
+            
+            if (prediction === 1) {
+                resultContainer.className = 'result-container high-risk';
+                resultTitle.textContent = '⚠️ Higher Risk Detected';
+                resultMessage.textContent = 'Based on the provided information, there are indicators that suggest a higher risk for depression. We strongly recommend consulting with a mental health professional for proper evaluation and support.';
+            } else {
+                resultContainer.className = 'result-container low-risk';
+                resultTitle.textContent = '✅ Lower Risk Detected';
+                resultMessage.textContent = 'Based on the provided information, the risk indicators for depression appear to be lower. However, mental health is complex, and it\'s always good to maintain healthy habits and seek professional help if you ever feel concerned.';
+            }
+        }
+
+        // Add some interactive effects
+        document.querySelectorAll('input, select').forEach(element => {
+            element.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.02)';
+                this.parentElement.style.transition = 'transform 0.2s ease';
+            });
+            
+            element.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body>
+</html></div>
