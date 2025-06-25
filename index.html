@@ -76,7 +76,7 @@ body::before {
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            color: #2c3e50;
+            color: #f5f5f5;
             font-weight: 600;
             font-size: 14px;
         }
@@ -84,12 +84,13 @@ body::before {
         .form-group input,
         .form-group select {
             width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e6ed;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            background: white;
+    padding: 12px 15px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    font-size: 16px;
+    background: rgba(255, 255, 255, 0.05); /* translucent background */
+    color: #ffffff; /* text color */
+    caret-color: #ffffff;
         }
 
         .form-group input:focus,
@@ -128,7 +129,7 @@ body::before {
             min-width: 30px;
             text-align: center;
             font-weight: bold;
-            color: #667eea;
+            color:#f5f5f5;
         }
 
         .predict-btn {
