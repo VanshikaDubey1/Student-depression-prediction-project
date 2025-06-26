@@ -64,6 +64,17 @@ python app.py
 
 ---
 
+
+
+### 🏠 Home Page
+
+
+<img src="Student-depression.ipynb" width="600"/>
+
+
+
+
+
 🌐 Live Frontend Demo
 
 ✨ Hosted with GitHub Pages
