@@ -66,10 +66,8 @@ python app.py
 
 
 
-### 🏠 Home Page
-
-
-<img src="student depression.jpg.png" width="600"/>
+<h3>🧠 Student Depression Illustration</h3>
+<img src="student depression.jpg.png" alt="Student Depression" width="600"/>
 
 
 
