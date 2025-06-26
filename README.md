@@ -66,12 +66,6 @@ python app.py
 
 
 
-<h3>🧠 Student Depression Illustration</h3>
-<img src="student depression.jpg.png" alt="Student Depression" width="600"/>
-
-
-
-
 
 🌐 Live Frontend Demo
 
